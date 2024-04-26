@@ -18,11 +18,6 @@ import { User } from './users.interface';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  omitPassword(user: User): Omit<User, 'password'> {
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
-  }
-
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     const userId = this.usersService.create(createUserDto);
@@ -38,8 +33,7 @@ export class UsersController {
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 5,
   ): Omit<User, 'password'>[] {
-    const users = this.usersService.findAll(+page, +limit);
-    return users.map((user) => this.omitPassword(user));
+    return this.usersService.findAll(+page, +limit);
   }
 
   @Get(':id')
@@ -48,7 +42,7 @@ export class UsersController {
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-    return this.omitPassword(this.usersService.findOne(+id));
+    return user;
   }
 
   @Put(':id')

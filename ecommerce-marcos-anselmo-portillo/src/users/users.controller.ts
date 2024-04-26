@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Put,
@@ -26,7 +25,11 @@ export class UsersController {
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     const userId = this.usersService.create(createUserDto);
-    return userId;
+    return {
+      statusCode: 201,
+      message: 'User created successfully',
+      userId: userId,
+    };
   }
 
   @Get()

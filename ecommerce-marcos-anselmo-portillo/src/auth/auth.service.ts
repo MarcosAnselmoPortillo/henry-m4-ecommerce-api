@@ -1,9 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { SigninDto } from './dto/signin.dto';
+import { UsersRepository } from 'src/users/users.repository';
 
 @Injectable()
 export class AuthService {
+  constructor(private readonly usersRepository: UsersRepository) {}
+  async signin(signinDto: SigninDto) {
+    const { email, password } = signinDto;
+
+    if (!email || !password) {
+      throw new UnauthorizedException('Email or password not provided');
+    }
+    const user = await this.usersRepository.findOneByEmail(email);
+
+    if (!user || user.password !== password) {
+      throw new UnauthorizedException('Email or password incorrect');
+    }
+
+    return { message: 'Sign in successful' };
+  }
+
   create(createAuthDto: CreateAuthDto) {
     return 'This action adds a new auth';
   }

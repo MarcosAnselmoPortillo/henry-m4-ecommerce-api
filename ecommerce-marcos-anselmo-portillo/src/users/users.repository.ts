@@ -6,7 +6,7 @@ import { log } from 'console';
 
 @Injectable()
 export class UsersRepository {
-  
+    
   private users: User[] = [
     {
       id: 1,
@@ -241,5 +241,9 @@ export class UsersRepository {
     const removedUser = this.users[userIndex];
     this.users.splice(userIndex, 1);
     return removedUser;
+  }
+
+  async findOneByEmail(email: string): Promise<User | undefined> {
+    return this.users.find((user) => user.email === email);
   }
 }

@@ -10,8 +10,8 @@ export class ProductsService {
     return this.productsRepository.create(createProductDto);
   }
 
-  findAll() {
-    return this.productsRepository.findAll();
+  findAll(page: number, limit: number) {
+    return this.productsRepository.findAll(page, limit);
   }
 
   findOne(id: number) {

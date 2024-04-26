@@ -7,6 +7,7 @@ import {
   Delete,
   Put,
   NotFoundException,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -33,8 +34,11 @@ export class UsersController {
   }
 
   @Get()
-  findAll(): Omit<User, 'password'>[] {
-    const users = this.usersService.findAll();
+  findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 5,
+  ): Omit<User, 'password'>[] {
+    const users = this.usersService.findAll(+page, +limit);
     return users.map((user) => this.omitPassword(user));
   }
 

@@ -7,6 +7,7 @@ import {
   Delete,
   NotFoundException,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -27,8 +28,8 @@ export class ProductsController {
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 5) {
+    return this.productsService.findAll(+page, +limit);
   }
 
   @Get(':id')
@@ -65,6 +66,6 @@ export class ProductsController {
       statusCode: 200,
       message: 'Product deleted successfully',
       productId: id,
-    }
-  } 
+    };
+  }
 }

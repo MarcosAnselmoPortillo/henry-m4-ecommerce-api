@@ -8,11 +8,13 @@ import {
   Put,
   NotFoundException,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './users.interface';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -28,6 +30,7 @@ export class UsersController {
     };
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   findAll(
     @Query('page') page: number = 1,
@@ -36,6 +39,7 @@ export class UsersController {
     return this.usersService.findAll(+page, +limit);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string): Omit<User, 'password'> {
     const user = this.usersService.findOne(+id);
@@ -45,6 +49,7 @@ export class UsersController {
     return user;
   }
 
+  @UseGuards(AuthGuard)
   @Put(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     const user = this.usersService.update(+id, updateUserDto);
@@ -58,6 +63,7 @@ export class UsersController {
     };
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     const user = this.usersService.remove(+id);

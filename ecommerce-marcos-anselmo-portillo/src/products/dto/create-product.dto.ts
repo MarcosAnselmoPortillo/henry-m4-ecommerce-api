@@ -11,7 +11,7 @@ export class CreateProductDto {
   description: string;
 
   @IsNotEmpty()
-  @IsDecimal({ decimal_digits: '2' })
+  @IsNumber({ maxDecimalPlaces: 2 })	
   @Min(0)
   price: number;
 
@@ -24,4 +24,8 @@ export class CreateProductDto {
   @IsOptional()
   @MaxLength(255)
   imgUrl?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  category: string;
 }

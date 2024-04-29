@@ -9,12 +9,12 @@ export class Order {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ type: 'date' })
+  date: Date;
+
   @ManyToOne(() => User, user => user.orders)
   @JoinColumn({ name: 'user_id' })
   user: User;
-
-  @Column({ type: 'date' })
-  date: Date;
 
   @OneToOne(() => OrderDetail, orderDetail => orderDetail.order)
   @JoinColumn()

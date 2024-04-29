@@ -23,7 +23,7 @@ export class Product {
   @Column({ type: 'text', nullable: false })
   description: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: false })
   price: number;
 
   @Column({ type: 'int', nullable: false })
@@ -37,6 +37,5 @@ export class Product {
   category: Category;
 
   @ManyToMany(() => OrderDetail, (orderDetail) => orderDetail.products)
-  @JoinTable()
   orderDetails: OrderDetail[];
 }

@@ -42,19 +42,25 @@ export class ProductsController {
   }
 
   @Get()
-  findAll(
+  async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 5,
   ): Promise<Product[]> {
-    return this.productsDbService.findAll(+page, +limit);
+    return await this.productsDbService.findAll(+page, +limit);
+  }
+
+  @Get('/seeder')
+  async seedProducts() {
+    await this.productsDbService.loadProducts();
+    return { message: 'Products seeded' };
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Product> {
+  async findOne(@Param('id') id: string): Promise<Product> {
     if (!isValidUuid(id)) {
       throw new BadRequestException('Invalid UUID');
     }
-    const product = this.productsDbService.findOne(id);
+    const product = await this.productsDbService.findOne(id);
     if (!product) {
       throw new NotFoundException(`Product with id ${id} not found`);
     }

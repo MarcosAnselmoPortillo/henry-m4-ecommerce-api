@@ -9,6 +9,8 @@ import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CategoriesService } from 'src/categories/categories.service';
+import * as fs from 'fs';
+import { formatString } from 'src/utils/formatStrings';
 
 @Injectable()
 export class ProductsDbService {
@@ -27,7 +29,7 @@ export class ProductsDbService {
     }
 
     const category = await this.categoriesRepository.getCategoryByName(
-      createProductDto.category,
+      formatString(createProductDto.category),
     );
 
     if (!category) {
@@ -46,17 +48,22 @@ export class ProductsDbService {
   }
 
   async findAll(page: number, limit: number): Promise<Product[]> {
-    const products = await this.productsRepository.find();
+    const products = await this.productsRepository.find({
+      relations: { category: true },
+    });
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
     if (startIndex >= products.length) {
       return [];
-    }
+    }   
     return products.slice(startIndex, endIndex);
   }
 
   async findOne(id: string): Promise<Product> {
-    return await this.productsRepository.findOne({ where: { id } });
+    return await this.productsRepository.findOne({
+      where: { id },
+      relations: { category: true },
+    });
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
@@ -70,5 +77,35 @@ export class ProductsDbService {
 
   async remove(id: string) {
     return await this.productsRepository.delete({ id });
+  }
+
+  async loadProducts() {
+    const dataFile = 'src/data/ecommerce-products.json';
+    const rawData = fs.readFileSync(dataFile, 'utf8');
+    const data = JSON.parse(rawData);
+
+    for (const product of data) {
+      product.name = formatString(product.name);
+      const findProduct = await this.productsRepository.findOne({
+        where: { name: product.name },
+      });
+
+      if (!findProduct) {
+        const category = await this.categoriesRepository.getCategoryByName(
+          formatString(product.category),
+        );
+
+        if (category) {
+          const newProduct = new Product();
+          newProduct.name = product.name;
+          newProduct.description = product.description;
+          newProduct.price = product.price;
+          newProduct.stock = product.stock;
+          newProduct.imgUrl = product.imgUrl;
+          newProduct.category = category;
+          await this.productsRepository.save(newProduct);
+        }
+      }
+    }
   }
 }

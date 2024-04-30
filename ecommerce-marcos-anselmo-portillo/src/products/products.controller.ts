@@ -10,6 +10,7 @@ import {
   Query,
   UseGuards,
   InternalServerErrorException,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -69,10 +70,7 @@ export class ProductsController {
 
   @UseGuards(AuthGuard)
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    if (!isValidUuid(id)) {
-      throw new BadRequestException('Invalid UUID');
-    }
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() updateProductDto: UpdateProductDto) {  
     if (!updateProductDto) {
       throw new BadRequestException('Missing update product data');
     }
@@ -97,10 +95,7 @@ export class ProductsController {
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    if (!isValidUuid(id)) {
-      throw new BadRequestException('Invalid UUID');
-    }
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     const product = this.productsDbService.findOne(id);
     if (!product) {
       throw new NotFoundException(`Product with id ${id} not found`);

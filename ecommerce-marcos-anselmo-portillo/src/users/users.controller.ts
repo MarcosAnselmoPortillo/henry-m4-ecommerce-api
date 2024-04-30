@@ -10,6 +10,7 @@ import {
   Query,
   UseGuards,
   InternalServerErrorException,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -17,7 +18,6 @@ import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { UsersDbService } from './usersDb.service';
 import { User } from './entities/user.entity';
 import { BadRequestException } from '@nestjs/common';
-import { validate as isValidUuid } from 'uuid';
 
 @Controller('users')
 export class UsersController {
@@ -51,10 +51,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Omit<User, 'password'>> {
-    if (!isValidUuid(id)) {
-      throw new BadRequestException('Invalid UUID');
-    }
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Omit<User, 'password'>> {
     const user = this.usersDbService.findOne(id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
@@ -64,12 +61,8 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    console.log(id, updateUserDto);
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
     
-    if (!isValidUuid(id)) {
-      throw new BadRequestException('Invalid UUID');
-    }
     if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
       throw new BadRequestException(`Missing update user data`);
     }
@@ -95,10 +88,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    if (!isValidUuid(id)) {
-      throw new BadRequestException('Invalid UUID');
-    }
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     const user = this.usersDbService.remove(id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);

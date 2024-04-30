@@ -69,7 +69,7 @@ export class ProductsController {
 
   @UseGuards(AuthGuard)
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+  async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     if (!isValidUuid(id)) {
       throw new BadRequestException('Invalid UUID');
     }
@@ -77,11 +77,11 @@ export class ProductsController {
       throw new BadRequestException('Missing update product data');
     }
     try {
-      let product = this.productsDbService.findOne(id);
+      let product = await this.productsDbService.findOne(id);
       if (!product) {
         throw new NotFoundException(`Product with id ${id} not found`);
       }
-      this.productsDbService.update(id, updateProductDto);
+      await this.productsDbService.update(id, updateProductDto);
       return {
         statusCode: 200,
         message: 'Product updated successfully',

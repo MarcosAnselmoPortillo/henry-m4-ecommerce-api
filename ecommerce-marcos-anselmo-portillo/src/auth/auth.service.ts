@@ -1,26 +1,40 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { SignInDto } from './dto/sign-in.dto';
 import { UsersDbService } from 'src/users/usersDb.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import * as bcript from 'bcrypt';
 import { User } from 'src/users/entities/user.entity';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersDbService: UsersDbService) {}
+  constructor(
+    private readonly usersDbService: UsersDbService,
+    private readonly JwtService: JwtService,
+  ) {}
   async signIn(signInDto: SignInDto) {
     const { email, password } = signInDto;
 
-    if (!email || !password) {
-      throw new UnauthorizedException('Email or password not provided');
-    }
     const user = await this.usersDbService.findOneByEmail(email);
 
-    if (!user || user.password !== password) {
+    if (!user) {
       throw new UnauthorizedException('Email or password incorrect');
     }
 
-    return { message: 'Sign in successful' };
+    const isPasswordValid = await bcript.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Email or password incorrect');
+    }
+
+    const payload = { sub: user.id, email: user.email, identity: user.id };
+    const access_token = this.JwtService.sign(payload);
+    return {
+      success: "User logged in successfully", access_token
+    };
   }
 
   async signUp(createUserDto: CreateUserDto): Promise<User> {

@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Param,
   Delete,
@@ -12,7 +11,6 @@ import {
   InternalServerErrorException,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { UsersDbService } from './usersDb.service';
@@ -22,23 +20,6 @@ import { BadRequestException } from '@nestjs/common';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersDbService: UsersDbService) {}
-
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    try {
-      const userId = await this.usersDbService.create(createUserDto);
-      return {
-        statusCode: 201,
-        message: 'User created successfully',
-        userId: userId,
-      };
-    } catch (error) {
-      if (error.status === 400) {
-        throw new BadRequestException(error.message);
-      }
-      throw new InternalServerErrorException('Error creating user');
-    }
-  }
 
   @UseGuards(AuthGuard)
   @Get()

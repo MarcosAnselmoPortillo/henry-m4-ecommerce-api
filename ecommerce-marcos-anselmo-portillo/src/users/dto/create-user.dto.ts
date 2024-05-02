@@ -18,6 +18,15 @@ export class CreateUserDto {
   })
   password: string;
 
+  @IsOptional()
+  @IsString()
+  @MinLength(8)
+  @MaxLength(15)
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]+$/, {
+    message: 'The password must contain at least one lowercase letter, one uppercase letter, a number, and one of the following special characters: !@#$%^&*',
+  })
+  confirmPassword?: string;
+
   @IsInt()
   @IsNotEmpty()
   phone?: number;

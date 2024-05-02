@@ -1,6 +1,14 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Order } from 'src/orders/entities/order.entity';
 
+export class ColumnNumericTransformer {
+  to(data: number): number {
+    return data;
+  }
+  from(data: string): number {
+    return parseFloat(data);
+  }
+}
 @Entity({
   name: 'users',
 })
@@ -14,10 +22,10 @@ export class User {
   @Column({ length: 50, unique: true, nullable: false })
   email: string;
 
-  @Column({ length: 15, nullable: false })
+  @Column({ length: 80, nullable: false })
   password: string;
 
-  @Column({ type: 'bigint', nullable: false })
+  @Column({ type: 'bigint', nullable: false , transformer: new ColumnNumericTransformer() })
   phone: number;
 
   @Column({ length: 50, nullable: true })

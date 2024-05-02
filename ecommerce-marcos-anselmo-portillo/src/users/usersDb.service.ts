@@ -46,7 +46,7 @@ export class UsersDbService {
     return await this.usersRepository.findOne({ where: { email } });
   }
 
-  async create(createUserDto: CreateUserDto): Promise<string> {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     const userExists = await this.usersRepository.findOne({
       where: { email: createUserDto.email },
     });
@@ -66,7 +66,7 @@ export class UsersDbService {
     user.city = createUserDto.city;
 
     const newUser = await this.usersRepository.save(user);
-    return newUser.id;
+    return newUser;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {

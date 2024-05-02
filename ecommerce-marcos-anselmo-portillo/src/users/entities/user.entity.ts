@@ -8,22 +8,22 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 50, nullable: false })
+  @Column({ length: 80, nullable: false })
   name: string;
 
   @Column({ length: 50, unique: true, nullable: false })
   email: string;
 
-  @Column({ length: 20, nullable: false })
+  @Column({ length: 15, nullable: false })
   password: string;
 
-  @Column({ type: 'bigint', nullable: true })
+  @Column({ type: 'bigint', nullable: false })
   phone: number;
 
   @Column({ length: 50, nullable: true })
   country: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ length: 80, nullable: true })
   address: string;
 
   @Column({ length: 50, nullable: true })

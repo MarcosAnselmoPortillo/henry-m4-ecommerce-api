@@ -12,7 +12,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { AuthGuard } from 'src/guards/auth.guard';
 import { UsersDbService } from './usersDb.service';
 import { User } from './entities/user.entity';
 import { BadRequestException } from '@nestjs/common';
@@ -32,7 +32,9 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Omit<User, 'password'>> {
+  findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<Omit<User, 'password'>> {
     const user = this.usersDbService.findOne(id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
@@ -42,12 +44,14 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Put(':id')
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
-    
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
       throw new BadRequestException(`Missing update user data`);
     }
-    
+
     try {
       const user = await this.usersDbService.update(id, updateUserDto);
       if (!user) {
@@ -58,7 +62,6 @@ export class UsersController {
         message: 'User updated successfully',
         userId: id,
       };
-      
     } catch (error) {
       if (error.status === 404) {
         throw new NotFoundException(error.message);

@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { AuthGuard } from 'src/guards/auth.guard';
 import { ProductsDbService } from './productsDb.service';
 import { Product } from './entities/product.entity';
 import { BadRequestException } from '@nestjs/common';
@@ -70,7 +70,10 @@ export class ProductsController {
 
   @UseGuards(AuthGuard)
   @Put(':id')
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() updateProductDto: UpdateProductDto) {  
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
     if (!updateProductDto) {
       throw new BadRequestException('Missing update product data');
     }

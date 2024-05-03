@@ -19,6 +19,11 @@ export class UsersDbService {
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
+
+  private omitPasswordAndAdmin(user: User): Omit<User, 'password' | 'isAdmin'> {
+    const { isAdmin, password, ...userWithoutPasswordAndAdmin } = user;
+    return userWithoutPasswordAndAdmin;
+  }
   async findAll(
     page: number,
     limit: number,
@@ -34,12 +39,12 @@ export class UsersDbService {
       .map((user) => this.omitPassword(user));
   }
 
-  async findOne(id: string): Promise<Omit<User, 'password'>> {
+  async findOne(id: string): Promise<Omit<User, 'password' | 'isAdmin'>> {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-    return this.omitPassword(user);
+    return this.omitPasswordAndAdmin(user);
   }
 
   async findOneByEmail(email: string): Promise<User | undefined> {
@@ -69,13 +74,14 @@ export class UsersDbService {
     return newUser;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<Omit<User, 'password' | 'isAdmin'>> {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
     Object.assign(user, updateUserDto);
-    return await this.usersRepository.save(user);
+    const updatedUser = await this.usersRepository.save(user);
+    return this.omitPasswordAndAdmin(updatedUser);
   }
 
   async remove(id: string) {

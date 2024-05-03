@@ -16,12 +16,16 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { UsersDbService } from './usersDb.service';
 import { User } from './entities/user.entity';
 import { BadRequestException } from '@nestjs/common';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/auth/roles.enum';
+import { RolesGuard } from 'src/guards/roles.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersDbService: UsersDbService) {}
 
-  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   @Get()
   findAll(
     @Query('page') page: number = 1,
@@ -34,7 +38,7 @@ export class UsersController {
   @Get(':id')
   findOne(
     @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<Omit<User, 'password'>> {
+  ): Promise<Omit<User, 'password' | 'isAdmin'>> {
     const user = this.usersDbService.findOne(id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);

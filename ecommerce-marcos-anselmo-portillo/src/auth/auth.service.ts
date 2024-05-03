@@ -9,6 +9,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import * as bcript from 'bcrypt';
 import { User } from 'src/users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from './roles.enum';
 
 @Injectable()
 export class AuthService {
@@ -30,10 +31,16 @@ export class AuthService {
       throw new UnauthorizedException('Email or password incorrect');
     }
 
-    const payload = { sub: user.id, email: user.email, identity: user.id };
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      identity: user.id,
+      roles: [user.isAdmin ? Role.ADMIN : Role.USER],
+    };
     const access_token = this.JwtService.sign(payload);
     return {
-      success: "User logged in successfully", access_token
+      success: 'User logged in successfully',
+      access_token,
     };
   }
 

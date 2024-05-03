@@ -21,7 +21,7 @@ export class AuthController {
     }
 
     const user = await this.authService.signUp(createUserDto);
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    const { password, isAdmin, ...userWithoutPasswordAndAdmin } = user;
+    return userWithoutPasswordAndAdmin;
   }
 }

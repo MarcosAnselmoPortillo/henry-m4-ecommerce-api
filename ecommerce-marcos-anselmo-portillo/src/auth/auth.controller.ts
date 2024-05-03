@@ -14,10 +14,8 @@ export class AuthController {
 
   @Post('signup')
   async signUp(@Body() createUserDto: CreateUserDto) {
-    if (createUserDto.confirmPassword) {
-      if (createUserDto.password !== createUserDto.confirmPassword) {
-        throw new BadRequestException('Passwords do not match');
-      }
+    if (createUserDto.password !== createUserDto.confirmPassword) {
+      throw new BadRequestException('Passwords do not match');
     }
 
     const user = await this.authService.signUp(createUserDto);

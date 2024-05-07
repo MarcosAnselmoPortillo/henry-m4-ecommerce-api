@@ -14,19 +14,30 @@ import {
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UsersDbService } from './usersDb.service';
-import { User } from './entities/user.entity';
+import { User, UserResponse } from './entities/user.entity';
 import { BadRequestException } from '@nestjs/common';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersDbService: UsersDbService) {}
 
+  @ApiResponse({
+    status: 200,
+    description: 'Find all users successfully',
+    type: [UserResponse],
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   @Get()
+  @ApiQuery({ name: 'page', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
   findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 5,
@@ -34,6 +45,16 @@ export class UsersController {
     return this.usersDbService.findAll(+page, +limit);
   }
 
+  @ApiResponse({
+    status: 200,
+    description: 'Find user successfully',
+    type: UserResponse,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 500, description: 'Error finding user' })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(
@@ -46,6 +67,16 @@ export class UsersController {
     return user;
   }
 
+  @ApiResponse({
+    status: 200,
+    description: 'Update user successfully',
+    type: User,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 500, description: 'Error updating user' })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Put(':id')
   async update(
@@ -74,6 +105,16 @@ export class UsersController {
     }
   }
 
+  @ApiResponse({
+    status: 200,
+    description: 'Delete user successfully',
+    type: User,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 500, description: 'Error deleting user' })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {

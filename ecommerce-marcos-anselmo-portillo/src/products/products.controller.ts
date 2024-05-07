@@ -22,12 +22,23 @@ import { validate as isValidUuid } from 'uuid';
 import { Role } from 'src/auth/roles.enum';
 import { Roles } from 'src/decorators/roles.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('products')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsDbService: ProductsDbService) {}
 
-  @UseGuards(AuthGuard)
+  @ApiResponse({
+    status: 201,
+    description: 'Product created successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 500, description: 'Error creating product' })
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   @Post()
   async create(@Body() createProductDto: CreateProductDto) {
     try {
@@ -45,6 +56,13 @@ export class ProductsController {
     }
   }
 
+  @ApiResponse({
+    status: 200,
+    description: 'Find all products successfully',
+    type: [Product],
+  })
+  @ApiQuery({ name: 'page', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
   @Get()
   async findAll(
     @Query('page') page: number = 1,
@@ -53,12 +71,33 @@ export class ProductsController {
     return await this.productsDbService.findAll(+page, +limit);
   }
 
+  @ApiResponse({
+    status: 200,
+    description: 'Product found successfully',
+    type: Product,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  @ApiResponse({ status: 500, description: 'Error finding product' })
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   @Get('/seeder')
   async seedProducts() {
     await this.productsDbService.loadProducts();
     return { message: 'Products seeded' };
   }
 
+  @ApiResponse({
+    status: 200,
+    description: 'Product found successfully',
+    type: Product,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  @ApiResponse({ status: 500, description: 'Error finding product' })
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Product> {
     if (!isValidUuid(id)) {
@@ -71,6 +110,15 @@ export class ProductsController {
     return product;
   }
 
+  @ApiResponse({
+    status: 200,
+    description: 'Product updated successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  @ApiResponse({ status: 500, description: 'Error updating product' })
+  @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   @Put(':id')
@@ -100,7 +148,17 @@ export class ProductsController {
     }
   }
 
-  @UseGuards(AuthGuard)
+  @ApiResponse({
+    status: 200,
+    description: 'Product deleted successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  @ApiResponse({ status: 500, description: 'Error deleting product' })
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     const product = this.productsDbService.findOne(id);

@@ -11,7 +11,7 @@ export class FilesService {
     @InjectRepository(Product) private productsRepository: Repository<Product>,
     private readonly filesRepository: CloudinaryService,
   ) {}
-  async uploadImage(productId: string, file: Express.Multer.File) {
+  async uploadImage(productId: string, file: Express.Multer.File): Promise<Product> {
     const product = await this.productsRepository.findOne({
       where: { id: productId },
     });

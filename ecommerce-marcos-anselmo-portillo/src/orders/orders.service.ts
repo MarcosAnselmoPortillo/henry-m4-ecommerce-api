@@ -19,7 +19,7 @@ export class OrdersService {
     @InjectRepository(User) private usersRepository: Repository<User>,
     private readonly dataSource: DataSource,
   ) {}
-  async create(createOrderDto: CreateOrderDto) {
+  async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const queryRunner = this.dataSource.createQueryRunner();
     try {
       await queryRunner.connect();
@@ -83,7 +83,7 @@ export class OrdersService {
       await queryRunner.release();
     }
   }
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Order> {
     const order = await this.ordersRepository.findOne({
       where: { id },
       relations: { orderDetail: { products: true } },
@@ -95,7 +95,7 @@ export class OrdersService {
 
     return order;
   }
-  async findAll() {
+  async findAll() : Promise<Order[]> {
     return await this.ordersRepository.find({
       relations: { orderDetail: { products: true } },
     });

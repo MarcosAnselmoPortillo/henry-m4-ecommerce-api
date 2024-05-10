@@ -83,6 +83,11 @@ export class ProductsDbService {
     const dataFile = 'src/data/ecommerce-products.json';
     const rawData = fs.readFileSync(dataFile, 'utf8');
     const data = JSON.parse(rawData);
+    const response = { 
+      productsAlreadyExists: [],
+      productsCreated: [],
+      productsWithoutExistingCategory: [],
+    }
 
     for (const product of data) {
       product.name = formatString(product.name);
@@ -103,9 +108,15 @@ export class ProductsDbService {
           newProduct.stock = product.stock;
           newProduct.imgUrl = product.imgUrl;
           newProduct.category = category;
-          await this.productsRepository.save(newProduct);
+          const newProductCreated = await this.productsRepository.save(newProduct);
+          response.productsCreated.push(newProductCreated);
+        } else {
+          response.productsWithoutExistingCategory.push({product: product.name, category:product.category});
         }
+      } else {
+        response.productsAlreadyExists.push(product.name);
       }
-    }
+    } 
+    return response;
   }
 }

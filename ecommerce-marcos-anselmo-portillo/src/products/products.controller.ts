@@ -73,20 +73,18 @@ export class ProductsController {
 
   @ApiResponse({
     status: 200,
-    description: 'Product found successfully',
-    type: Product,
+    description: 'Products seeded successfully',
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'Product not found' })
-  @ApiResponse({ status: 500, description: 'Error finding product' })
+  @ApiResponse({ status: 500, description: 'Error seeding product' })
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   @Get('/seeder')
   async seedProducts() {
-    await this.productsDbService.loadProducts();
-    return { message: 'Products seeded' };
+    const response = await this.productsDbService.loadProducts();
+    return { message: response };
   }
 
   @ApiResponse({

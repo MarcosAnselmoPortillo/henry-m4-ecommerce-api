@@ -29,7 +29,7 @@ export class CategoriesService {
   }
   async addCategories(categories: string[]): Promise<Category[]> {
     if (categories.length === 0) {
-      return [];
+      throw new BadRequestException('Categories cannot be empty');
     }
 
     const categoriesFormatted = formatStrings(categories);
@@ -38,7 +38,7 @@ export class CategoriesService {
       (category) => !categoriesExists.find((cat) => cat.name === category),
     );
     if (categoriesToAdd.length === 0) {
-      return [];
+      throw new BadRequestException('Categories already exist');
     }
 
     const categoriesToSave = categoriesToAdd.map((name) => {

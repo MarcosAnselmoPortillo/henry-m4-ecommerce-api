@@ -5,7 +5,7 @@ import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -17,15 +17,26 @@ export class CategoriesController {
     description: 'Categories seeded successfully',
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiBadRequestResponse({ description: 'Categories already exist' })
+  @ApiBadRequestResponse({ description: 'Categories cannot be empty' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 500, description: 'Error seeding categories' })
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   @Post('/seeder')
+  @ApiBody({
+    schema: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+      example: ['smartphone', 'MONITOR', 'Keyboard', 'Mouse'],
+    },
+  })
   async seedCategories(@Body() categories: string[]) {
-    await this.categoriesService.addCategories(categories);
-    return { message: 'Categories seeded' };
+    const newCategories = await this.categoriesService.addCategories(categories);
+    return { message: 'Categories seeded', newCategories};
   }
 
   @ApiResponse({

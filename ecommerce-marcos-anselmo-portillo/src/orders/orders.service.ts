@@ -10,6 +10,9 @@ import { Order } from './entities/order.entity';
 import { Product } from 'src/products/entities/product.entity';
 import { User } from 'src/users/entities/user.entity';
 import { OrderDetail } from 'src/order-details/entities/order-detail.entity';
+import { response } from 'express';
+import { CreateOrderResponseDto } from './dto/create-order-response.dto';
+import { isArrayAllNull } from 'src/utils/isArrayAllNull';
 
 @Injectable()
 export class OrdersService {
@@ -19,11 +22,14 @@ export class OrdersService {
     @InjectRepository(User) private usersRepository: Repository<User>,
     private readonly dataSource: DataSource,
   ) {}
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+  async create(
+    createOrderDto: CreateOrderDto,
+  ): Promise<CreateOrderResponseDto> {
     const queryRunner = this.dataSource.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
+
       let total = 0;
       const user = await this.usersRepository.findOne({
         where: { id: createOrderDto.userId },
@@ -38,42 +44,50 @@ export class OrdersService {
       const order = new Order();
       order.user = user;
       order.date = new Date();
-      //   const newOrder = await this.ordersRepository.save(order);
       const newOrder = await queryRunner.manager.save(order);
 
+      const productsNotFound: string[] = [];
+      const productsOutOfStock: string[] = [];
       const productsArray = await Promise.all(
         createOrderDto.products.map(async (product) => {
           const productEntity = await this.productsRepository.findOne({
             where: { id: product.id },
           });
           if (!productEntity) {
-            throw new NotFoundException(`Product id ${product.id} not found`);
+            productsNotFound.push(product.id);
+            return null;
           }
-          if (productEntity.stock === 0) {
-            throw new NotFoundException(
-              `Product id ${product.id} out of stock`,
-            );
+          if (productEntity.stock <= 0) {
+            productsOutOfStock.push(product.id);
+            return null;
           }
           total += productEntity.price;
           productEntity.stock -= 1;
-          //   await this.productsRepository.save(productEntity);
           await queryRunner.manager.save(productEntity);
           return productEntity;
         }),
       );
 
+      if (isArrayAllNull(productsArray)) {
+        throw new NotFoundException('Products not found or out of stock');
+      }
+
       const orderDetail = new OrderDetail();
       orderDetail.order = newOrder;
       orderDetail.products = productsArray;
       orderDetail.price = total;
-      //   await this.orderDetailRepository.save(orderDetail);
       await queryRunner.manager.save(orderDetail);
       await queryRunner.commitTransaction();
 
-      return await this.ordersRepository.findOne({
+      const response = new CreateOrderResponseDto();
+      response.order = await this.ordersRepository.findOne({
         where: { id: newOrder.id },
-        relations: { orderDetail: true },
+        relations: { orderDetail: { products: true } },
       });
+      response.productsNotFound = productsNotFound;
+      response.productsOutOfStock = productsOutOfStock;
+
+      return response;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error.status === 404) {
@@ -95,7 +109,7 @@ export class OrdersService {
 
     return order;
   }
-  async findAll() : Promise<Order[]> {
+  async findAll(): Promise<Order[]> {
     return await this.ordersRepository.find({
       relations: { orderDetail: { products: true } },
     });

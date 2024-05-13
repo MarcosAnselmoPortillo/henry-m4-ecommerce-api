@@ -12,6 +12,7 @@ import { User } from 'src/users/entities/user.entity';
 import { OrderDetail } from 'src/order-details/entities/order-detail.entity';
 import { CreateOrderResponseDto } from './dto/create-order-response.dto';
 import { isArrayAllNull } from 'src/utils/isArrayAllNull';
+import { removeDuplicates } from 'src/utils/removeDuplicates';
 
 @Injectable()
 export class OrdersService {
@@ -47,8 +48,10 @@ export class OrdersService {
 
       const productsNotFound: string[] = [];
       const productsOutOfStock: string[] = [];
+      const productsWithoutDuplicate = removeDuplicates(createOrderDto.products);
+      
       const productsArray = await Promise.all(
-        createOrderDto.products.map(async (product) => {
+        productsWithoutDuplicate.map(async (product) => {
           const productEntity = await this.productsRepository.findOne({
             where: { id: product.id },
           });

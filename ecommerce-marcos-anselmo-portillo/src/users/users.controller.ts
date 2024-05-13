@@ -115,10 +115,11 @@ export class UsersController {
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({ status: 500, description: 'Error deleting user' })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    const user = this.usersDbService.remove(id);
+ async remove(@Param('id', ParseUUIDPipe) id: string) {
+    const user = await this.usersDbService.remove(id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }

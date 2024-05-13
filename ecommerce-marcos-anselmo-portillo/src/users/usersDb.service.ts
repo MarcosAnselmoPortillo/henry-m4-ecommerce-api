@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -74,7 +75,10 @@ export class UsersDbService {
     return newUser;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<Omit<User, 'password' | 'isAdmin'>> {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<Omit<User, 'password' | 'isAdmin'>> {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
@@ -85,6 +89,14 @@ export class UsersDbService {
   }
 
   async remove(id: string) {
-    return await this.usersRepository.delete({ id });
+    try {
+      return await this.usersRepository.delete({ id });
+    } catch (error) {
+      if (error.status === 404) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new InternalServerErrorException(error.message);
+      }
+    }
   }
 }

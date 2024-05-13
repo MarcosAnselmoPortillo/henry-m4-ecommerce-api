@@ -158,12 +158,12 @@ export class ProductsController {
   @Roles(Role.ADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     const product = this.productsDbService.findOne(id);
     if (!product) {
       throw new NotFoundException(`Product with id ${id} not found`);
     }
-    this.productsDbService.remove(id);
+    await this.productsDbService.remove(id);
     return {
       statusCode: 200,
       message: 'Product deleted successfully',

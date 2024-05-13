@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ProductsDbService } from 'src/products/productsDb.service';
 import { CloudinaryService } from './files.repository';
 import { Product } from 'src/products/entities/product.entity';
 import { Repository } from 'typeorm';

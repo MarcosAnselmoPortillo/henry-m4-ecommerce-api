@@ -36,7 +36,7 @@ export class User {
   email: string;
 
   @ApiProperty({
-    description: 'User password hashed with bcrypt',
+    description: 'User password hashed',
     example: '$2y$10$hudIsIbWRCIK3fwPCJqz4.LI260PCjiW91BCs/pWJgu7YcK4j7yI.',
   })
   @Column({ length: 80, nullable: false })

@@ -18,7 +18,6 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { ProductsDbService } from './productsDb.service';
 import { Product } from './entities/product.entity';
 import { BadRequestException } from '@nestjs/common';
-import { validate as isValidUuid } from 'uuid';
 import { Role } from 'src/auth/roles.enum';
 import { Roles } from 'src/decorators/roles.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
@@ -35,6 +34,7 @@ export class ProductsController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Error creating product' })
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
@@ -77,6 +77,7 @@ export class ProductsController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Error seeding product' })
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
@@ -97,10 +98,7 @@ export class ProductsController {
   @ApiResponse({ status: 404, description: 'Product not found' })
   @ApiResponse({ status: 500, description: 'Error finding product' })
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Product> {
-    if (!isValidUuid(id)) {
-      throw new BadRequestException('Invalid UUID');
-    }
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Product> {
     const product = await this.productsDbService.findOne(id);
     if (!product) {
       throw new NotFoundException(`Product with id ${id} not found`);
@@ -114,6 +112,7 @@ export class ProductsController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Product not found' })
   @ApiResponse({ status: 500, description: 'Error updating product' })
   @ApiBearerAuth()
@@ -152,6 +151,7 @@ export class ProductsController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Product not found' })
   @ApiResponse({ status: 500, description: 'Error deleting product' })
   @ApiBearerAuth()

@@ -30,6 +30,7 @@ export class OrdersController {
     type: [CreateOrderDto],
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(AuthGuard, RolesGuard)
@@ -44,6 +45,7 @@ export class OrdersController {
     type: [CreateOrderDto],
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get()
@@ -58,6 +60,7 @@ export class OrdersController {
     type: Order,
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Order not found' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -73,6 +76,7 @@ export class OrdersController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({
     status: 404,
     description: 'Products not found or out of stock',

@@ -32,6 +32,7 @@ export class UsersController {
     type: [UserResponse],
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(AuthGuard, RolesGuard)
@@ -52,10 +53,12 @@ export class UsersController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({ status: 500, description: 'Error finding user' })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   @Get(':id')
   findOne(
     @Param('id', ParseUUIDPipe) id: string,
@@ -74,6 +77,7 @@ export class UsersController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({ status: 500, description: 'Error updating user' })
   @ApiBearerAuth()
@@ -112,6 +116,7 @@ export class UsersController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({ status: 500, description: 'Error deleting user' })
   @ApiBearerAuth()

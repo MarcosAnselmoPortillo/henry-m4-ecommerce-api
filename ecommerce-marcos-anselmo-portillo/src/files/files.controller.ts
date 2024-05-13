@@ -37,6 +37,7 @@ export class FilesController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Error uploading file' })
   @ApiBearerAuth()
   @Roles(Role.ADMIN)

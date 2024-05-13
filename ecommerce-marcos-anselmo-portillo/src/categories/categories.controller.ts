@@ -20,6 +20,7 @@ export class CategoriesController {
   @ApiBadRequestResponse({ description: 'Categories already exist' })
   @ApiBadRequestResponse({ description: 'Categories cannot be empty' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Error seeding categories' })
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
@@ -45,6 +46,7 @@ export class CategoriesController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Error creating category' })
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
@@ -59,6 +61,7 @@ export class CategoriesController {
     description: 'Get all categories successfully',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Error getting categories' })
   @ApiBearerAuth()
   @Roles(Role.ADMIN)

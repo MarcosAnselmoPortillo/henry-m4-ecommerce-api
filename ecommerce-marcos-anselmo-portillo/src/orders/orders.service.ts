@@ -10,7 +10,6 @@ import { Order } from './entities/order.entity';
 import { Product } from 'src/products/entities/product.entity';
 import { User } from 'src/users/entities/user.entity';
 import { OrderDetail } from 'src/order-details/entities/order-detail.entity';
-import { response } from 'express';
 import { CreateOrderResponseDto } from './dto/create-order-response.dto';
 import { isArrayAllNull } from 'src/utils/isArrayAllNull';
 
@@ -111,6 +110,13 @@ export class OrdersService {
   }
   async findAll(): Promise<Order[]> {
     return await this.ordersRepository.find({
+      relations: { orderDetail: { products: true } },
+    });
+  }
+
+  async findAllByUser(id: string): Promise<Order[]> {
+    return await this.ordersRepository.find({
+      where: { user: { id } },
       relations: { orderDetail: { products: true } },
     });
   }
